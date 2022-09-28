@@ -1,33 +1,31 @@
 
 import random
+from textwrap import indent
 
 
-def randomize():
+def randomize(min,max,anz_num):
     numbers = []
-    for i in range(45):
+    for i in range(max+1):
         numbers.append(i)
     for k in numbers:
-        swapPositions(numbers, k, random.randint(0,44))
-    return numbers
+        rand = random.randint(min,max)
+        numbers[k], numbers[rand] = numbers[rand], numbers[k]
+    #print(numbers[0:5])
+    return numbers[0:anz_num-1]
 
-def swapPositions(list, pos1, pos2):
-    list[pos1], list[pos2] = list[pos2], list[pos1]
-    return list
-
-def ziehungen(numbers, anzZiehung):
+def ziehungen(anzZiehung, min,max,anz_num):
     dic = {}
-    for j in range(45):
+    for j in range(max+1):
             ap = {j : 0}
             dic.update(ap)
     for i in range(anzZiehung):
-        for l in numbers:
+        num = randomize(min,max,anz_num)
+        for l in num:
             a = dic.get(l) + 1
             dic.update({l: a})
         print(dic)
     return dic
 
 
-num = randomize()
-ziehungen(num,1000)
-
-    
+#num = randomize()
+ziehungen(1000,0,44,6)
