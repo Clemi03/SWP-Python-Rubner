@@ -29,3 +29,4 @@ def ziehungen(anzZiehung, min,max,anz_num):
 
 #num = randomize()
 ziehungen(1000,0,44,6)
+#test git
