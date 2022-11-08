@@ -125,7 +125,8 @@ def getHighCard(karten):
     karten.sort()
     return karten[len(karten)-1]
 
-dic = {"paar" : 0,
+dic = {"highCard":0,
+    "paar" : 0,
     "zwei paar" : 0,
     "drillinge" : 0,
     "staight" : 0,
@@ -157,6 +158,8 @@ for i in range(0,100000):
         dic["zwei paar"] = dic["zwei paar"]+1
     elif(paarVorhanden(hand)):
         dic["paar"] = dic["paar"]+1
+    else:
+        dic["highCard"] = dic["highCard"]+1
 
 print(dic)
 ergDic = dic
