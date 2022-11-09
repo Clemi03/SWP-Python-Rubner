@@ -161,8 +161,10 @@ for i in range(0,100000):
     else:
         dic["highCard"] = dic["highCard"]+1
 
-print(dic)
-ergDic = dic
-for i in ergDic:
-    ergDic[i] = ergDic[i] / 100000 * 100
-print(ergDic)
+
+if __name__ == '__main__':
+    print(dic)
+    ergDic = dic
+    for i in ergDic:
+        ergDic[i] = ergDic[i] / 100000 * 100
+    print(ergDic)
