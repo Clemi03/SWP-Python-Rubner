@@ -1,0 +1,3 @@
+PlayerWins 3
+CompWins 5
+{'Schere': 10, 'Stein': 0, 'Papier': 0, 'Echse': 0, 'Spock': 0}

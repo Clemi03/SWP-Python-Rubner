@@ -9,7 +9,7 @@ import random
 
 def kartenAusteilen(anzahl):
     karten = []
-    for i in range(5):
+    for i in range(anzahl):
         karten.append(ziehung(karten))
     return karten
 
@@ -161,10 +161,76 @@ for i in range(0,100000):
     else:
         dic["highCard"] = dic["highCard"]+1
 
+def ausgabe(dic):
+    print("heigh card:\t\t" + str(dic["highCard"]))
+    print("pair:\t\t\t" + str(dic["paar"]))
+    print("two pairs:\t\t" + str(dic["zwei paar"]))
+    print("three of a kind:\t" + str(dic["drillinge"]))
+    print("straight:\t\t" + str(dic["staight"]))
+    print("flush:\t\t\t" + str(dic["flush"]))
+    print("full house:\t\t" + str(dic["full house"]))
+    print("four of a kind:\t\t" + str(dic["four of a kind"]))
+    print("straight flush:\t\t" + str(dic["straight flush"]))
+    print("royal flush:\t\t" + str(dic["royal flush"]))
+
 
 if __name__ == '__main__':
+
+    datei = open('config.txt','r')
+    #print(datei.read())
+
+    anzahlKarten = int(datei.readline())
+    anzahlZiehungen = int(datei.readline())
+    print(anzahlKarten)
+    print(anzahlZiehungen)
+
+
+    dic = {"highCard":0,
+        "paar" : 0,
+        "zwei paar" : 0,
+        "drillinge" : 0,
+        "staight" : 0,
+        "flush" : 0,
+        "full house" : 0,
+        "four of a kind" : 0,
+        "straight flush" : 0,
+        "royal flush" : 0
+        }
+
+    for i in range(0,anzahlZiehungen):
+        hand = kartenAusteilen(anzahlKarten)
+
+        if(royalflushVorhanden(hand)):
+            dic["royal flush"] = dic["royal flush"]+1
+        elif(straightFlushVorhanden(hand)):
+            dic["straight flush"] = dic["straight flush"]+1
+        elif(fourOfaKindVorhanden(hand)):
+            dic["four of a kind"] = dic["four of a kind"]+1
+        elif(fullhouseVorhanden(hand)):
+            dic["full house"] = dic["full house"]+1
+        elif(flushVorhanden(hand)):
+            dic["flush"] = dic["flush"]+1
+        elif(straightVorhanden(hand)):
+            dic["staight"] = dic["staight"]+1
+        elif(drillingeVorhanden(hand)):
+            dic["drillinge"] = dic["drillinge"]+1
+        elif(zweiPaarVorhanden(hand)):
+            dic["zwei paar"] = dic["zwei paar"]+1
+        elif(paarVorhanden(hand)):
+            dic["paar"] = dic["paar"]+1
+        else:
+            dic["highCard"] = dic["highCard"]+1
+
+
     print(dic)
     ergDic = dic
     for i in ergDic:
-        ergDic[i] = ergDic[i] / 100000 * 100
-    print(ergDic)
+        erg = ergDic[i] / anzahlZiehungen * 100
+        ergDic[i] = round(erg,4)
+    #print(ergDic)
+
+    ausgabe(ergDic)
+
+    with open('log.txt','a') as dateiLog:
+        line = str(anzahlKarten) + " Karten auf " + str(anzahlZiehungen) + " Ziehungen "+ str(ergDic)+"\n"
+        dateiLog.write(line)
