@@ -1,3 +1,1 @@
-PlayerWins 3
-CompWins 5
-{'Schere': 10, 'Stein': 0, 'Papier': 0, 'Echse': 0, 'Spock': 0}
+{'PlayerWins': 0, 'CompWins': 4, 'stats': {'Schere': 3, 'Stein': 1, 'Papier': 0, 'Echse': 0, 'Spock': 1}}
