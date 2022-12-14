@@ -2,7 +2,7 @@ from enum import Enum
 
 class Sex(Enum):
     male = 0
-    femal = 1
+    female = 1
     notSpecified = 2
 
 class AbteilungName(Enum):
@@ -38,7 +38,7 @@ class Gruppenleiter(Mitarbeiter):
 
 
 class Abteilung:
-    def __init__(self,nameAbteilung, Gruppenleiter, Mitarbeiter = []):
+    def __init__(self,nameAbteilung, Gruppenleiter = [], Mitarbeiter = []):
         self.nameAbteilung = nameAbteilung
         self.Gruppenleiter = Gruppenleiter
         self.Mitarbeiter = Mitarbeiter
@@ -59,11 +59,10 @@ class Firma:
         return cnt
 
     def allAbt(self):
-        cnt = 0
+        dep = []
         for a in self.abteilungen:
-            cnt += 1
-            print(a.nameAbteilung)
-        return cnt
+            dep.append(a.nameAbteilung)
+        return dep
 
     def count_Dep(self):
         return len(self.abteilungen)
@@ -94,34 +93,43 @@ class Firma:
             for m in a.Mitarbeiter:
                 if m.Sex == Sex.male: male += 1
                 else: female += 1
+        nenner = male+female
+        male = male/nenner*100
+        female = female/nenner*100
         return male, female
 
-    # def portion_Male_Female(self):
-    #     for a in self.abteilungen:
-    #         for m in a.Mitarbeiter
+    def salariers(self):
+        sum = 0
+        for a in self.abteilungen:
+            for m in a.Mitarbeiter:
+                sum += m.Gehalt
+            for g in a.Gruppenleiter:
+                sum += g.Gehalt
+        return sum
+
+if __name__ == '__main__':
+    p = Person("Clemens","Rietzler", Sex.male)
+    p2 = Person("Clemens2","Rietzler2", Sex.female)
+    p3 = Person("Clemens3","Rietzler3", Sex.female)
 
 
+    g = Gruppenleiter(p.Vorname,p.Nachname,p.Sex,1000, AbteilungName.IT)
+    g2 = Gruppenleiter(p.Vorname,p.Nachname,p.Sex,3000, AbteilungName.Management)
+    m = Mitarbeiter(p2.Vorname,p2.Nachname,p2.Sex,1000)
+    m1 = Mitarbeiter(p.Vorname,p.Nachname,p.Sex,1000)
+    m2 = Mitarbeiter(p3.Vorname,p3.Nachname,p3.Sex,80000)
+    m3 = Mitarbeiter(p3.Vorname,p3.Nachname,p3.Sex,100)
+    m4 = Mitarbeiter(p3.Vorname,p3.Nachname,p3.Sex,200)
 
+    a = Abteilung("IT", [g],[m,m1,m2])
+    print("Mitarbeiter in Abteilung ",a.nameAbteilung,a.count_MA())
+    a1 = Abteilung("Mg", [g2],[m3,m4])
 
-
-
-p = Person("Clemens","Rietzler", Sex.male)
-p2 = Person("Clemens2","Rietzler2", Sex.male)
-
-
-g = Gruppenleiter(p.Vorname,p.Nachname,p.Sex,1000, AbteilungName.IT)
-m = Mitarbeiter(p2.Vorname,p2.Nachname,p2.Sex,1000)
-m1 = Mitarbeiter(p.Vorname,p.Nachname,p.Sex,1000)
-
-a = Abteilung("IT", [g],[m,m1])
-print(a.count_MA())
-a1 = Abteilung("Mg", [g],[m,m1])
-
-f = Firma("HTL", [a,a1])
-print(f.count_Dep())
-print(f.allAbt())
-print(f.count_CompMA())
-print(f.biggest_Dep())
-print(f.proportionMaleFemal())
-print(f.count_GL())
-#print(f.count_Dep())
+    f = Firma("HTL", [a,a1])
+    print("Anzahl Abteilungen ",f.count_Dep())
+    print("Mitarbeiter in Frima ", f.count_CompMA())
+    print("Größte Abteilung/en, mit Mitarbeiteranzahl ",f.biggest_Dep())
+    print("Verhältniss Male-Female ",f.proportionMaleFemal())
+    print("Anzahl Gruppenleiter in der Firma ",f.count_GL())
+    print("Abteilungen ",f.allAbt())
+    print("Auszuzahlende Gehälter pro Monat ",f.salariers())
