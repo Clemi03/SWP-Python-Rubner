@@ -107,6 +107,15 @@ class Firma:
                 sum += g.Gehalt
         return sum
 
+    def biggestSalary(self):
+        max = 0
+        for a in self.abteilungen:
+            for m in a.Mitarbeiter:
+                max = m.Gehalt if m.Gehalt > max else max
+            for g in a.Gruppenleiter:
+                max = m.Gehalt if m.Gehalt > max else max
+        return max
+
 if __name__ == '__main__':
     p = Person("Clemens","Rietzler", Sex.male)
     p2 = Person("Clemens2","Rietzler2", Sex.female)
@@ -133,3 +142,4 @@ if __name__ == '__main__':
     print("Anzahl Gruppenleiter in der Firma ",f.count_GL())
     print("Abteilungen ",f.allAbt())
     print("Auszuzahlende Gehälter pro Monat ",f.salariers())
+    print("Größter Zahltag ",f.biggestSalary())
