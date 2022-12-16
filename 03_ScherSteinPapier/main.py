@@ -1,21 +1,16 @@
 import random
 import ast
 from flask import Flask, request
-from flask_restful import Resource, Api
+import requests # for rest calls
+
+host = 'http://localhost:5000/stats'
 
 choices = ["Schere","Stein", "Papier", "Echse","Spock"]
-
-playerWins = 0
-playerStatSymbols = {"Schere" : 0,"Stein": 0, "Papier": 0, "Echse": 0,"Spock": 0}
-compWins = 0
-
-app = Flask(__name__)
-api = Api(app) 
 
 name_score = {}
 
 
-def player_select():
+def player_select(playerStatSymbols):
     print("Auswählen zwischen "+ str(choices))
     choice = input()
     if(choice in choices):
@@ -23,12 +18,12 @@ def player_select():
         return choice
     else:
         print("Falsche Eingabe, nochmal!")
-        player_select()
+        player_select(playerStatSymbols)
 
 def comp_selcet():
     return choices[random.randint(0,4)]
 
-def comp_selectWithAnalyse():
+def comp_selectWithAnalyse(playerStatSymbols):
     listSorted = sorted(playerStatSymbols.items(), key=lambda x:x[1], reverse=True)
     dicSorted = dict(sorted(playerStatSymbols.items(), key=lambda x:x[1], reverse=True))
     most = listSorted[0][0]
@@ -45,8 +40,7 @@ def comp_selectWithAnalyse():
     else: return choices[random.randint(0,4)]
 
 
-def analysis(comp, player):
-    global compWins, playerWins
+def analysis(comp, player, playerWins, compWins,playerStatSymbols):
     if(player == "Schere" and (comp == "Papier" or comp=="Echse")):
         print("Player won")
         playerWins = playerWins + 1
@@ -67,40 +61,40 @@ def analysis(comp, player):
     else:
         print("PC won")
         compWins = compWins + 1
+    return (playerWins, compWins,playerStatSymbols)
 
 
-def game(runden):
+def game(runden, playerWins, compWins,playerStatSymbols):
     for i in range(0,runden):
-        player = player_select()
+        player = player_select(playerStatSymbols)
         comp = comp_selcet()
         print(comp)
-        analysis(comp,player)
+        (playerWins, compWins,playerStatSymbols) = analysis(comp,player, playerWins, compWins,playerStatSymbols)
         print("Player: " + str(playerWins) + ", Comp: " + str(compWins))
         print(playerStatSymbols)
-    # loadDataFromStorage()
-    # saveDataToStorage()
+    return (playerWins, compWins,playerStatSymbols)
 
-def gameWithAnalyse(runden):
+def gameWithAnalyse(runden, playerWins, compWins,playerStatSymbols):
     for i in range(0,runden):
-        player = player_select()
-        comp = comp_selectWithAnalyse()
+        player = player_select(playerStatSymbols)
+        comp = comp_selectWithAnalyse(playerStatSymbols)
         print(comp)
-        analysis(comp,player)
+        (playerWins, compWins,playerStatSymbols) = analysis(comp, player, playerWins, compWins,playerStatSymbols)
         print("Player: " + str(playerWins) + ", Comp: " + str(compWins))
         print(playerStatSymbols)
 
 
 def loadDataFromStorage(doc = '\db.txt'):
-    global playerWins, compWins,playerStatSymbols
     datei = open(r'C:\Users\Clemens\Dokumente\Schule\HTL\5.Klasse\SWP-python\SWP-Python-Rubner\03_ScherSteinPapier' + doc,'r')
     data = ast.literal_eval(str(datei.read()))
     playerWins = data['PlayerWins']
     compWins = data['CompWins']
     playerStatSymbols = data['stats']
     datei.close()
+    return (playerWins, compWins,playerStatSymbols)
 
 
-def saveDataToStorage(doc = '\db.txt'):
+def saveDataToStorage(playerWins, compWins,playerStatSymbols, doc = '\db.txt'):
     data = {
     "PlayerWins": playerWins,
     "CompWins": compWins,
@@ -110,59 +104,52 @@ def saveDataToStorage(doc = '\db.txt'):
         db.write(str(data))
         db.close()
 
-def consolenMenue():
-    print("[Spielen, Statistik, Daten Uploaden, Spiel mit Analyse]")
+def saveDataToAPI(playerWins, compWins,playerStatSymbols, user='user'):
+    j = {"playerWins":playerWins, "compWins":compWins, "stats":{'Schere': playerStatSymbols['Schere'], 'Stein': playerStatSymbols['Stein'], 'Papier': playerStatSymbols['Papier'], 'Echse': playerStatSymbols['Echse'], 'Spock': playerStatSymbols['Spock']}}
+    response = requests.put('%s/%s' % (host, user) , json=j)
+    print (response) #Gibt den Response Code aus (Header)
+    print(response.json()) #Gibt den Response Body aus (also die wirkliche Antwort)
+
+def loadDataFromAPI(user='user'):
+    response = requests.get('%s/%s' % (host, user)).json()
+    print (response)
+
+def changeDataOnAPI(playerWins, compWins,playerStatSymbols, user='user'):
+    j = {"playerWins":playerWins, "compWins":compWins, "stats":{'Schere': playerStatSymbols['Schere'], 'Stein': playerStatSymbols['Stein'], 'Papier': playerStatSymbols['Papier'], 'Echse': playerStatSymbols['Echse'], 'Spock': playerStatSymbols['Spock']}}
+    response = requests.patch('%s/%s' % (host, user),  json=j).json()
+    print (response)
+
+
+def consolenMenue(playerWins, compWins,playerStatSymbols):
+    print("[spielen, statistik, daten uploaden, spiel mit analyse, daten neu auf api, daten von api, daten update api]")
     inp = input()
-    if(inp == 'Spielen'):
+    if(inp == 'spielen'):
         print("Anzahl versuche:")
         inp2 = int(input())
-        game(inp2)
-    elif(inp == 'Statistik'):
-        loadDataFromStorage()
+        playerWins, compWins,playerStatSymbols = game(inp2, playerWins, compWins,playerStatSymbols)
+    elif(inp == 'statistik'):
+        playerWins, compWins,playerStatSymbols = loadDataFromStorage()
         print("playerWins",playerWins)
         print("compWins",compWins)
         print(playerStatSymbols)
-    elif(inp == 'Daten Uploaden'):
-        saveDataToStorage()
-    elif(inp == 'Spiel mit Analyse'):
+    elif(inp == 'daten uploaden'):
+        saveDataToStorage(playerWins, compWins,playerStatSymbols)
+    elif(inp == 'spiel mit analyse'):
         print("Anzahl versuche:")
         inp2 = int(input())
-        loadDataFromStorage()
-        gameWithAnalyse(inp2)  
+        playerWins, compWins,playerStatSymbols = loadDataFromStorage()
+        gameWithAnalyse(inp2, playerWins, compWins,playerStatSymbols) 
+    elif(inp == 'daten neu auf api'):
+        saveDataToAPI(playerWins, compWins,playerStatSymbols)
+    elif(inp == 'daten von api'):
+        loadDataFromAPI()
+    elif(inp == 'daten update api'):
+        changeDataOnAPI(playerWins, compWins,playerStatSymbols)
     else:
         print("Falsche eingabe, erneut")
-        consolenMenue()
-
-
-class Statistik(Resource):
-    def get(self, name):
-        if name in name_score:
-            return {name: name_score[name]}
-        return {"Message" : "Nicht vorhanden"}
-
-    def put(self, name):
-        print(name)
-        existing = name in name_score
-        d = request.get_json(force=True)
-        name_score[name] = {'playerWins': d['playerWins'], 'compWins':d['compWins'], 'stats': d['stats']}
-        # TODO wie mit API?? Speichern nach jedem Spiel?? und holen??
-        if existing:
-            return {"Message" : "Überschrieben"}
-        return {"Message" : "Neu hinzugefügt"}
-
-    def delete(self, name):
-        del name_score[name]
-        return {"Message": "%s gelöscht" % name}
-
-    def patch(self, name):
-        d = request.get_json(force=True)
-        name_score[name] = {'playerWins': d['playerWins'], 'compWins':d['compWins'], 'stats': d['stats']}
-        return {"Message": "%s gepatched" % name}
-api.add_resource(Statistik, '/stats/<string:name>')
-
+        consolenMenue(playerWins, compWins,playerStatSymbols)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    loadDataFromStorage()
+    (playerWins, compWins,playerStatSymbols) = loadDataFromStorage()
     while(True):
-        consolenMenue()
+        consolenMenue(playerWins, compWins,playerStatSymbols)
