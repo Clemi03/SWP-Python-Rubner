@@ -41,7 +41,7 @@ def piestatsPlayer(user='user'):
 def winsPie(user='user'):
     data = dict(name_score[user])
     df = {"player":["du","computer"], "werte":[data['playerWins'],data['compWins']]}
-    fig = px.pie(df, values='player', names='werte')
+    fig = px.pie(df, values='werte', names='player')
     fig.show()
     return redirect(url_for('home'))
 
